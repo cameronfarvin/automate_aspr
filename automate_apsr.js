@@ -5,7 +5,7 @@
 async function automate_aspr(collection_count) {
     const aspr_data = [];
 
-    const base_load_buffer_ms = 2500; // Base wait time in milliseconds for loading elements.
+    const base_load_buffer_ms = 3000; // Base wait time in milliseconds for loading elements.
     let next_page_link;
     let page_count = 0;
 
@@ -211,7 +211,6 @@ async function automate_aspr(collection_count) {
     // Function to normalize encoding of text.
     function NormalizeEncoding(text) {
         return text
-            .trim()
             .normalize('NFC')
             .replace(/√ò/g, 'Ø')
             .replace(/√¶/g, 'æ')
@@ -241,7 +240,10 @@ async function automate_aspr(collection_count) {
             .replace(/√æ/g, 'æ')
             .replace(/√Æ/g, 'Æ')
             .replace(/√Ø/g, 'Ø')
-            .replace(/√ö/g, 'ö');
+            .replace(/√ö/g, 'ö')
+            .replace(/\r?\n|\r|\t/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
     }
 
     // Clear the console and start the data collection process.
