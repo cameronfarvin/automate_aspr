@@ -1,9 +1,39 @@
+/*
+ * [ File ]:
+ * automate_apsr.js
+ * 
+ * [ Description ]: Expected Initial Conditions
+ * This script automates the collection of certain data from the APSR (Cambridge Core) Web Search interface.
+ * It is designed to be run in the browser's console window (more on this momentarily) with the first page of the
+ * desired search results visible in the browser. For example, the study which prompted the creation of this script
+ * used the following results page as the initial conditions for running this script: http://tiny.cc/8dbf001.
+ * 
+ * [ Description ]: Work Performed
+ * This script will retrieve information for the given quantity of search results defined in the variable
+ * "SEARCH_RESULT_COLLECTION_COUNT" at the top of the file. The script retrieves information such as the title,
+ * authors, (online) publication date, citation count, abstract, and links to all citing papers for the specified
+ * collection count. The collected data is then saved as a CSV file. Offline post-processing of the data is available
+ * in other (Python) scripts included in this repository.
+ * 
+ * [ Note ]: Running JavaScript in the Browser Console.
+ * If you are unfamiliar with running JavasScript from the console of a browser, it is easier than it sounds.
+ * I recommend chatting with your preferred LLM to learn how to do so. There are also tutorials and videos for
+ * this online. Once you have access to the browser's console, all that is required is to (a) set the initial
+ * conditions for the search results in the apsr Cambridge Core web interface (conduct your search), then (b) set the
+ * "SEARCH_RESULT_COLLECTION_COUNT" variable in this file to the desired number of search results to collect, then (c)
+ * copy and paste this script into the console, and (d) press enter. ***Given that there have been no substantive changes
+ * to the apsr Cambridge Core web interface since the time of this writing, this script should automatically collect
+ * the desired data.***
+ */
+
+const SEARCH_RESULT_COLLECTION_COUNT = 100; // The number of results to collect. Adjust as needed.
+
 /**
  * Function to automate the collection of data from the APSR web interface.
  * @param {number} collection_count - The number of results to collect.
  */
-async function automate_aspr(collection_count) {
-    const aspr_data = [];
+async function automate_apsr(collection_count) {
+    const apsr_data = [];
 
     const base_load_buffer_ms = 3000; // Base wait time in milliseconds for loading elements.
     let next_page_link;
@@ -15,12 +45,12 @@ async function automate_aspr(collection_count) {
     /**
      * Function to collect data from multiple pages until the desired collection count is reached.
      */
-    async function collect_aspr_data() {
-        while (aspr_data.length < collection_count) {
-            await collect_aspr_page_data();
+    async function collect_apsr_data() {
+        while (apsr_data.length < collection_count) {
+            await collect_apsr_page_data();
 
             // After collecting data from the current page, check if we have enough data.
-            if (aspr_data.length >= collection_count) {
+            if (apsr_data.length >= collection_count) {
                 break;
             }
 
@@ -35,15 +65,15 @@ async function automate_aspr(collection_count) {
             }
         }
 
-        console.log(JSON.stringify(aspr_data, null, 3));
-        DownlaodResultsAsCSV(aspr_data, 'apsr_results.csv');
+        console.log(JSON.stringify(apsr_data, null, 3));
+        DownlaodResultsAsCSV(apsr_data, 'apsr_results.csv');
         ConsoleErrorsAndWarnings(errors, warnings);
     }
 
     /**
      * Function to collect data from a single page.
      */
-    async function collect_aspr_page_data() {
+    async function collect_apsr_page_data() {
         // Check if the main results region is available.
         const main_results_region_selector = "#maincontent";
         const results_view = document.querySelector(main_results_region_selector);
@@ -71,7 +101,7 @@ async function automate_aspr(collection_count) {
 
         // Iterate over each row to collect data.
         for (let current_row of all_results_rows) {
-            if (aspr_data.length >= collection_count) {
+            if (apsr_data.length >= collection_count) {
                 break;
             }
 
@@ -90,7 +120,7 @@ async function automate_aspr(collection_count) {
             let all_citing_papers_link = await RetrieveCitingPapersLink(current_row, title);
 
             // Push collected data to the results array.
-            aspr_data.push({
+            apsr_data.push({
                 title,
                 authors,
                 published_online_date,
@@ -248,8 +278,8 @@ async function automate_aspr(collection_count) {
 
     // Clear the console and start the data collection process.
     clear();
-    collect_aspr_data();
+    collect_apsr_data();
 }
 
 // Start the automation process with a specified collection count.
-automate_aspr(100);
+automate_apsr(SEARCH_RESULT_COLLECTION_COUNT);
